@@ -8,10 +8,19 @@ def to_sexp(csv, offset=0):
     with open(csv, 'r') as f:
         header = f.read()
         if header.lower().startswith('depth'):
-            header = 0
+            n_header = 0
         else:
-            header = None
-    df = pd.read_csv(csv, sep=";", header=header)
+            n_header = None
+
+        # set_trace()
+        if header.find(',') > 0:
+            sep = ','
+        elif header.find(';') > 0:
+            sep = ';'
+        else:
+            print('wrong separator')
+            sys.exit(1)
+    df = pd.read_csv(csv, sep, header=n_header)
     df.columns = [0,1,2,3]
 
     sexp = '(bookmarks \n'
