@@ -6,13 +6,13 @@ from pdb import set_trace
 
 def to_sexp(csv, offset=0):
     with open(csv, 'r') as f:
-        header = f.read()
+        header = f.read().split('\n')[0]
         if header.lower().startswith('depth'):
+            print('header found: %s' % header)
             n_header = 0
         else:
             n_header = None
 
-        # set_trace()
         if header.find(',') > 0:
             sep = ','
         elif header.find(';') > 0:
@@ -20,6 +20,8 @@ def to_sexp(csv, offset=0):
         else:
             print('wrong separator')
             sys.exit(1)
+        print('separator: %s' % sep)
+
     df = pd.read_csv(csv, sep, header=n_header)
     df.columns = [0,1,2,3]
 
