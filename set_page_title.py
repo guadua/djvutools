@@ -24,12 +24,19 @@ def csv2cmd(csv='pages.csv'):
     cmds = []
     for index, row in df[:-1].iterrows():
         shift = int(row['Start'] - row['Logical'])
+        prefix = row['Prefix']
         for p in range(int(row['Start']), int(row['Stop'])+1):
             logical = p - shift
             if row['Style'] == 'i':
                 logical = roman.toRoman(logical).lower()
+            elif row['Style'] == 'I':
+                logical = roman.toRoman(logical)
             elif row['Style'] == 1:
                 pass
+
+            if prefix == prefix: # not NaN
+                logical = '-'.join([prefix, str(logical)])
+
             cmd = 'select %s; set-page-title %s;' % (p, logical)
             cmds.append(cmd)
     cmds.append('save;')
