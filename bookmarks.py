@@ -1,4 +1,17 @@
 #!/usr/bin/env python3
+
+'''
+usage:
+    bookmarks.py [djvu_file] [toc.csv] [shift]
+
+    toc.csv should be jpdftweak bookmark style, separator ";"
+
+    Depth;Open;Title;Page
+    1;;Preface;1
+    1;;Chapter 1;3
+    2;;Section 1;3       # here "Sectoin 1" is child of "Chapter 1"
+'''
+
 import os
 import sys
 import pandas as pd
