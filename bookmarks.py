@@ -45,8 +45,12 @@ def to_sexp(csv, offset=0):
 
         title = row[2]
         page = int(row[3])
-        sexp += ' ' * depth * 2 + '("%s" "#%s"' % (title, page+offset)
-        sexp += ')' * (depth - next_depth +1)
+        try:
+            sexp += ' ' * int(depth) * 2 + '("%s" "#%s"' % (title, page+offset)
+            sexp += ')' * int(depth - next_depth +1)
+        except ValueError as err:
+            print(err)
+            set_trace()
         sexp += '\n'
     # close
     sexp += ')'
