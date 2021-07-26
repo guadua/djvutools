@@ -27,7 +27,7 @@ def csv2cmd(csv='pages.csv'):
     df['Logical'] = df['Logical'].fillna(-1).astype(int)
     df.loc[max(df.index), 'Stop'] = df.loc[max(df.index), 'Start']
     df['Stop'] = df['Stop'].astype(int)
-    set_trace()
+    # set_trace()
 
     cmds = []
     for index, row in df[:-1].iterrows():
