@@ -2,12 +2,12 @@
 
 '''
 usage:
-    bookmarks.py [djvu_file] [toc.csv] [shift]
+    bookmarks.py [djvu_file] [toc.csv] [offset]
 
     toc.csv should be jpdftweak bookmark style, separator ";"
 
     Depth;Open;Title;Page
-    1;;Preface;1
+    1;;Preface;v         # when Page is roman, offset is ignored
     1;;Chapter 1;3
     2;;Section 1;3       # here "Sectoin 1" is child of "Chapter 1"
 '''
@@ -44,9 +44,13 @@ def to_sexp(csv, offset=0):
         next_depth = df[0].shift(-1, fill_value=1)[index]
 
         title = row[2]
-        page = int(row[3])
+        if row[3].isdigit():
+            page = int(row[3]) + offset
+        else: # ignore offset when
+            page = row[3]
+
         try:
-            sexp += ' ' * int(depth) * 2 + '("%s" "#%s"' % (title, page+offset)
+            sexp += ' ' * int(depth) * 2 + '("%s" "#%s"' % (title, page)
             sexp += ')' * int(depth - next_depth +1)
         except ValueError as err:
             print(err)
