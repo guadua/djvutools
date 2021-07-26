@@ -33,8 +33,8 @@ def main():
         if not os.path.exists(djvu) or os.stat(pbm).st_size == 0:
             cmds.append('cjb2 -clean %s %s' % (pbm, djvu))
         if os.path.exists(djvu):
-            has_text(djvu)
-            cmds.append('%s -j %s --in-place -l eng %s' % (OCRODJVU_CMD, NJOBS, djvu))
+            if not has_text(djvu):
+                cmds.append('%s -j %s --in-place -l eng %s' % (OCRODJVU_CMD, NJOBS, djvu))
     cmds.append(djvm_cmd)
     for cmd in cmds:
         print(cmd)
