@@ -94,7 +94,7 @@ def main():
     with open(txt, 'w') as f:
         f.write(sexp)
     print('wrote to %s' % txt)
-    cmd = 'djvused %s -e "set-outline %s; save"' % (djvu, txt)
+    cmd = 'djvused \'%s\' -e "set-outline \'%s\'; save"' % (djvu, txt)
     print(cmd)
     os.system(cmd)
 
