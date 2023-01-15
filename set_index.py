@@ -38,27 +38,44 @@ class ArgumentParser(argparse.ArgumentParser):
             self.error('Unable to parse page numbers')
         return options
 
-def get_index(sexpr):
-    mapareas = []
-    columns = sexpr[5:]
-    for col in columns:
-        paragraphs = col[5:]
-        for para in paragraphs:
-            if not isinstance(para[5], djvu.sexpr.StringExpression):
-                if djvu.const.get_text_zone_type(para[5:][0][0].value) is djvu.const.TEXT_ZONE_LINE:
-                    lines = para[5:]
-                    for l in lines:
-                        if not isinstance(l, djvu.sexpr.StringExpression):
-                            words = l[5:]
-                            for maparea in get_mapareas(words):
-                                mapareas.append(maparea)
-                elif djvu.const.get_text_zone_type(para[5:][0][0].value) is djvu.const.TEXT_ZONE_WORD:
-                    words = para[5:]
-                    for maparea in get_mapareas(words):
-                        mapareas.append(maparea)
+def get_index(sexpr, mapareas=[]):
+    '''
+    recursive search for TEXT_ZONE_WORD
+    '''
+    children = sexpr[5:]
+    for child in children:
+        if not isinstance(child[5], djvu.sexpr.StringExpression):
+            if djvu.const.get_text_zone_type(child[5:][0][0].value) > djvu.const.TEXT_ZONE_WORD:
+                mapareas = get_index(child, mapareas) # here recursive
+            elif djvu.const.get_text_zone_type(child[5:][0][0].value) is djvu.const.TEXT_ZONE_WORD:
+                words = child[5:]
+                for maparea in to_mapareas(words):
+                    mapareas.append(maparea)
     return mapareas
 
-def get_mapareas(words):
+# def get_index(sexpr):
+#     mapareas = []
+#     columns = sexpr[5:]
+#     for col in columns:
+#         regions = col[5:]
+#         for region in regions:
+#             paragraphs = region[5:]
+#             for para in paragraphs:
+#                 if not isinstance(para[5], djvu.sexpr.StringExpression):
+#                     if djvu.const.get_text_zone_type(para[5:][0][0].value) is djvu.const.TEXT_ZONE_LINE:
+#                         lines = para[5:]
+#                         for l in lines:
+#                             if not isinstance(l, djvu.sexpr.StringExpression):
+#                                 words = l[5:]
+#                                 for maparea in get_mapareas(words):
+#                                     mapareas.append(maparea)
+#                     elif djvu.const.get_text_zone_type(para[5:][0][0].value) is djvu.const.TEXT_ZONE_WORD:
+#                         words = para[5:]
+#                         for maparea in get_mapareas(words):
+#                             mapareas.append(maparea)
+#     return mapareas
+
+def to_mapareas(words):
     mapareas = []
     pattern = r'(\d+)(,|F|f|ff|)'
     pattern2 = r'(\d+)\-(\d+),'
@@ -107,11 +124,11 @@ class Context(djvu.decode.Context):
         else:
             pages = (document.pages[i - 1] for i in pages)
         for page in pages:
-            ant = 'page%04d.ant' % (page.n+1)
+            ant = 'index%04d.ant' % (page.n+1)
             with open(ant, 'w') as f:
                 for maparea in self.process_page(page):
                     maparea.print_into(f)
-            cmd = 'djvused %s -e "select %s; set-ant %s; save"' % (path, page.n+1, ant)
+            cmd = 'djvused  \"%s\" -e "select %s; set-ant %s; save"' % (path, page.n+1, ant)
             os.system(cmd)
             time.sleep(0.1)
 
